@@ -25,7 +25,7 @@ export const handler = async (event: any, context: any, callback: any) => {
           body: "We only accept GET, POST, and DELETE, not " + method
         };
       } catch(error) {
-        var body = error.stack || JSON.stringify(error, null, 2);
+        var body = JSON.stringify(error, null, 2);
         return {
           statusCode: 400,
           headers: {},
