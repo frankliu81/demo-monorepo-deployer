@@ -1,35 +1,26 @@
 export const handler = async (event: any, context: any, callback: any) => {
-    console.log("CDK_SCOPE " + process.env.CDK_SCOPE)
-    console.log("event " + JSON.stringify(event, null, 2))
-    
-    try {
-        const method = event.httpMethod;
-        // Get name, if present
-        const widgetId = event.path.startsWith('/') ? event.path.substring(1) : event.path;
-    
-        if (method === "GET") {
-          // GET / to get the names of all widgets
-          if (event.path === "/") {
-            return {
-              statusCode: 200,
-              headers: {},
-              body: JSON.stringify({ monorepodeployer: ['1']})
-            };
-          }
-        }
-    
-        // We got something besides a GET, POST, or DELETE
-        return {
-          statusCode: 400,
-          headers: {},
-          body: "We only accept GET, POST, and DELETE, not " + method
-        };
-      } catch(error) {
-        var body = JSON.stringify(error, null, 2);
-        return {
-          statusCode: 400,
-          headers: {},
-          body: body
-        }
-      }
+  console.log("CDK_SCOPE " + process.env.CDK_SCOPE)
+  console.log("event " + JSON.stringify(event, null, 2))
+  console.log("parse event.body" + JSON.stringify(JSON.parse(event.body)))
+  const name = JSON.parse(event.body)['repository']['name']
+  console.log("parse respository name " + name)
+  
+  if (name === 'jobi') {
+    return {
+      statusCode: 200,
+      headers: {},
+      body: "skipped"
+    };
+  }
+
+  if (name == 'demo-monorepo-deployer')
+  {
+
+  }
+
+  return {
+    statusCode: 200,
+    headers: {},
+    body: "success"
   };
+};
