@@ -24,7 +24,12 @@ export class Service1Stack extends cdk.Stack {
       }
     });
 
-    const api = new LambdaRestApi(this, "frank-demo-monorepo-deployer-service1-api", {
+    let lambdaRestApiId;
+    if (id === 'production' ) // deployed from pipeline
+      lambdaRestApiId = "frank-demo-monorepo-deployer-service1-api-prod"
+    else
+      lambdaRestApiId = "frank-demo-monorepo-deployer-service1-api"
+    const api = new LambdaRestApi(this, lambdaRestApiId, {
       handler: lambdaFunction,
     } )
     
