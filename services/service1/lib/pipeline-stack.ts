@@ -11,7 +11,7 @@ class MyApplication extends Stage {
     
     //what do you want the codepipeline to do for it in this stage
     new Service1Stack(this, 'production', {
-      stackName: 'frank-service1',
+      stackName: 'Service1StackProduction',
     })
   }
 }
