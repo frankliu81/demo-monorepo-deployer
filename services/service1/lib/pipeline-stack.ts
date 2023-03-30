@@ -37,6 +37,7 @@ export class PipelineStack extends Stack {
         primaryOutputDirectory: `${ROOT_PATH}/cdk.out`,
         input: pipelines.CodePipelineSource.connection("frankliu81/demo-monorepo-deployer", "main", {
             connectionArn: "arn:aws:codestar-connections:ca-central-1:536986426115:connection/2d6e17b4-f9e0-4ec9-808b-9ca1803105ec",
+            triggerOnPush: false
           }),
         commands: [
           `cd ${ROOT_PATH}`,
