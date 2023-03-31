@@ -3,6 +3,7 @@ import * as pipelines from "aws-cdk-lib/pipelines";
 import { Stack, StackProps, Stage, StageProps } from "aws-cdk-lib";
 import { Service1Stack } from "./service1-stack";
 import { LinuxBuildImage } from "aws-cdk-lib/aws-codebuild";
+import { Pipeline } from "aws-cdk-lib/aws-codepipeline";
 
 const ROOT_PATH='services/service1';
 class MyApplication extends Stage {
@@ -18,12 +19,13 @@ class MyApplication extends Stage {
 
 // we will put in dil-deploy-sandbox, it will deploy to other accounts
 export class PipelineStack extends Stack {
+  pipelineInstance: pipelines.CodePipeline;
+
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-
     // create codestar connection
-    const pipeline = new pipelines.CodePipeline(this, "pipeline", {
+    this.pipelineInstance = new pipelines.CodePipeline(this, "pipeline", {
       // we need to make sure the key it uses for s3 bucket to store artifacts can be accessed cross account
       crossAccountKeys: true,
       // usse the latest version of the linux image
@@ -50,7 +52,7 @@ export class PipelineStack extends Stack {
       })
     });
 
-    pipeline.addStage(
+    this.pipelineInstance.addStage(
       new MyApplication(this, 'Production', {
       env: {
         account: '536986426115', // spg-energy-playground
@@ -61,6 +63,8 @@ export class PipelineStack extends Stack {
         new pipelines.ManualApprovalStep('Deploy')
       ]
     })
-    // deploy to new account and new reegion
+
+    this.pipelineInstance.buildPipeline()
+    // deploy to new account and new region
   }
 }

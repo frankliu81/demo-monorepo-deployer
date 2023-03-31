@@ -3,6 +3,7 @@ import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import { Service1Stack } from '../lib/service1-stack';
 import { PipelineStack } from '../lib/pipeline-stack';
+import { SsmStack } from '../lib/ssm-stack';
 
 const app = new cdk.App();
 new Service1Stack(app, 'Service1Stack', {
@@ -21,10 +22,19 @@ new Service1Stack(app, 'Service1Stack', {
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
 });
 
-new PipelineStack(app, 'pipeline', {
+const pipelineStack = new PipelineStack(app, 'pipeline', {
   stackName: 'frank-service1-pipeline',
   env: {
     account: '536986426115', // spg-energy-playground
     region: 'ca-central-1'
   }
+})
+
+new SsmStack(app, 'ssm', {
+  stackName: 'frank-ssm',
+  env: {
+    account: '536986426115', // spg-energy-playground
+    region: 'ca-central-1'
+  },
+  codePipeline: pipelineStack.pipelineInstance
 })

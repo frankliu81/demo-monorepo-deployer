@@ -6,6 +6,7 @@ import * as path from 'path';
 import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as kms from 'aws-cdk-lib/aws-kms';
+import * as ssm from "aws-cdk-lib/aws-ssm";
 //import * as iam from 'aws-cdk-lib/aws-iam';
 
 
@@ -23,7 +24,11 @@ export class MonorepoDeployerStack extends cdk.Stack {
       },
       
       environment: {
-       CDK_SCOPE: process.env.CDK_SCOPE!,
+        CDK_SCOPE: process.env.CDK_SCOPE!,
+        SERVICE1_CODEPIPELINE_NAME: ssm.StringParameter.valueForStringParameter(
+          this,
+          `/service1/pipeline_stack/codepipeline_name`,
+        )
       }
     });
 
@@ -40,5 +45,7 @@ export class MonorepoDeployerStack extends cdk.Stack {
 
     //s3Bucket.grantRead(new iam.AccountRootPrincipal());
     s3Bucket.grantRead(lambdaFunction)
+
+
   }
 }
