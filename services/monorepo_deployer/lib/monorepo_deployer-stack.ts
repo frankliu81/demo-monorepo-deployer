@@ -8,15 +8,17 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as kms from 'aws-cdk-lib/aws-kms';
 import * as ssm from "aws-cdk-lib/aws-ssm";
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { RemovalPolicy } from 'aws-cdk-lib';
 
 
 export class MonorepoDeployerStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const service1PipelineName = ssm.StringParameter.valueForStringParameter(
-      this,
-      `/service1/pipeline_stack/codepipeline_name`);
+    // TESTING: Fetch codepipeline name from SSM written from service1 pipeline stack, will move to s3 config file
+    // const service1PipelineName = ssm.StringParameter.valueForStringParameter(
+    //   this,
+    //   '/demo_monorepo_deployer/service1/codepipeline_name');
 
     // The code that defines your stack goes here
     const lambdaFunction = new NodejsFunction(this, "frank-demo-monorepo-deployer", {
@@ -29,7 +31,8 @@ export class MonorepoDeployerStack extends cdk.Stack {
       // },
       environment: {
         CDK_SCOPE: process.env.CDK_SCOPE!,
-        SERVICE1_CODEPIPELINE_NAME: service1PipelineName
+        // TESTING: Fetch codepipeline name from SSM written from service1 pipeline stack, will move to s3 config file
+        // SERVICE1_CODEPIPELINE_NAME: service1PipelineName
       },
       initialPolicy: [
         // permission for lambda to execute codepipelin
@@ -48,13 +51,22 @@ export class MonorepoDeployerStack extends cdk.Stack {
       handler: lambdaFunction,
     } )
 
-    // https://towardsthecloud.com/aws-cdk-s3-bucket
-    const s3Bucket = new s3.Bucket(this, 'frank-monorepo-deployer-bucket', {
-      objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_ENFORCED,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      encryptionKey: new kms.Key(this, 's3BucketKMSKey'),
+    const s3ConfigBucket = new s3.Bucket(this, 'demo-monorepo-deployer', {
+      bucketName: "demo-monorepo-deployer",
+      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+      // https://towardsthecloud.com/aws-cdk-s3-bucket
+      // objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_ENFORCED,
+      // blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      // encryptionKey: new kms.Key(this, 's3BucketKMSKey'),
     });
 
-    s3Bucket.grantRead(lambdaFunction)
+    // write to SSM
+    const ssmParam = new ssm.StringParameter(this, "bucketNameSSM", {
+      parameterName: '/demo_monorepo_deployer/bucket_name',
+      stringValue: s3ConfigBucket.bucketName
+    })
+
+    s3ConfigBucket.grantRead(lambdaFunction)
   }
 }

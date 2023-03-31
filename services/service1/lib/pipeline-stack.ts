@@ -3,7 +3,10 @@ import * as pipelines from "aws-cdk-lib/pipelines";
 import { Stack, StackProps, Stage, StageProps } from "aws-cdk-lib";
 import { Service1Stack } from "./service1-stack";
 import { LinuxBuildImage } from "aws-cdk-lib/aws-codebuild";
-import { Pipeline } from "aws-cdk-lib/aws-codepipeline";
+import * as ssm from "aws-cdk-lib/aws-ssm";
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
+
 
 const ROOT_PATH='services/service1';
 class MyApplication extends Stage {
@@ -65,6 +68,38 @@ export class PipelineStack extends Stack {
     })
 
     this.pipelineInstance.buildPipeline()
+
+    // START monorepo deployer integration
+    // TESTING: write to SSM the pipeline 
+    // const ssmParam = new ssm.StringParameter(this, "codePipelineName", {
+    //   parameterName: '/demo_monorepo_deployer/service1/codepipeline_name',
+    //   stringValue: this.pipelineInstance.pipeline.pipelineName
+    // })
+
+    // read monorepo deployer bucket name
+    const configBucketName = ssm.StringParameter.valueForStringParameter(
+      this,
+      '/demo_monorepo_deployer/bucket_name');
+
+    // write to S3, a config file with codepipeline_name and deployment expression
+    const importedConfigBucket = s3.Bucket.fromBucketName(
+      this,
+      'importedConfigBucketFromName',
+      configBucketName,
+    );
+
+    new s3deploy.BucketDeployment(this, 'configFile', {
+      // bucket filepath is ${respository}/${branch}/${service}
+      sources: [s3deploy.Source.data('demo-monorepo-deployer/integration/service1/config.json', 
+        `{ "codepipeline": "${this.pipelineInstance.pipeline.pipelineName}", 
+           "ignore_patterns": "",
+           "match_patterns": "services/service1/*"
+        }`
+      )],
+      destinationBucket: importedConfigBucket,
+    });
+    // END monorepo deployer integration
+
     // deploy to new account and new region
   }
 }

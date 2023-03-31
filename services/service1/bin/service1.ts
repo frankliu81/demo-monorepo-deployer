@@ -30,11 +30,12 @@ const pipelineStack = new PipelineStack(app, 'pipeline', {
   }
 })
 
-new SsmStack(app, 'ssm', {
-  stackName: 'frank-ssm',
-  env: {
-    account: '536986426115', // spg-energy-playground
-    region: 'ca-central-1'
-  },
-  codePipeline: pipelineStack.pipelineInstance
-})
+// Not used: write to ssm within pipelineStack
+// new SsmStack(app, 'ssm', {
+//   stackName: 'frank-ssm',
+//   env: {
+//     account: '536986426115', // spg-energy-playground
+//     region: 'ca-central-1'
+//   },
+//   codePipeline: pipelineStack.pipelineInstance
+// })

@@ -1,3 +1,4 @@
+// Not used: write to ssm within pipelineStack
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as ssm from "aws-cdk-lib/aws-ssm";
@@ -11,7 +12,7 @@ export class SsmStack extends cdk.Stack {
 
     // write to SSM
     const ssmParam = new ssm.StringParameter(this, "codePipelineName", {
-        parameterName: '/service1/pipeline_stack/codepipeline_name',
+        parameterName: '/demo_monorepo_deployer/service1/pipeline_stack/codepipeline_name'',
         stringValue: props!.codePipeline.pipeline.pipelineName
       })
     }
