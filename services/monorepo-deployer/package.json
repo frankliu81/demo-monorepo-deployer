@@ -2,7 +2,7 @@
   "name": "monorepo_deployer",
   "version": "0.1.0",
   "bin": {
-    "monorepo_deployer": "bin/monorepo_deployer.js"
+    "monorepo_deployer": "bin/monorepo-deployer.js"
   },
   "scripts": {
     "build": "tsc",

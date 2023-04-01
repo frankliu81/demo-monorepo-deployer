@@ -1,17 +1,28 @@
 
 import { CodePipelineClient, StartPipelineExecutionCommand } from "@aws-sdk/client-codepipeline";
-import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { extractRepoBranchFromGithubEvent, fetchConfigs, getObject } from "./config-evaluator";
+// const BUCKET_NAME = process.env.BUCKET_NAME || ''
 
 export const handler = async (event: any, context: any, callback: any) => {
   console.log("CDK_SCOPE " + process.env.CDK_SCOPE)
   console.log("event " + JSON.stringify(event, null, 2))
+  
+  // const config = await getObject({
+  //   Bucket: BUCKET_NAME,
+  //   Key: "demo-monorepo-deployer/main/service1/config.json"
+  // })
+  // console.log(`config: ${config}`);
 
-  if (event.body) // if there is body from the github org event
+  let parsedEvent = JSON.parse(event.body);
+  const githubRepoInfo = extractRepoBranchFromGithubEvent(parsedEvent);
+  (await fetchConfigs(githubRepoInfo)).map( (config) => { console.log(`${config}\n`)})
+
+  if (parsedEvent) // if parsedEvent is not null, ie. is returned from the github org webhook event
   {
-    console.log("parse event.body" + JSON.stringify(JSON.parse(event.body)))
-    const name = JSON.parse(event.body)['repository']['name']
-    console.log("parse respository name " + name)
-
+    console.log("parsed event.body" + JSON.stringify(parsedEvent))
+    const name = parsedEvent['repository']['name']
+    console.log("respository name " + name)
+    
     if (name === 'jobi') {
       return {
         statusCode: 200,

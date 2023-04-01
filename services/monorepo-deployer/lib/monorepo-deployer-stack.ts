@@ -20,6 +20,23 @@ export class MonorepoDeployerStack extends cdk.Stack {
     //   this,
     //   '/demo_monorepo_deployer/service1/codepipeline_name');
 
+    const s3ConfigBucket = new s3.Bucket(this, 'demo-monorepo-deployer', {
+      bucketName: "monorepo-deployer",
+      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+      // https://towardsthecloud.com/aws-cdk-s3-bucket
+      // objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_ENFORCED,
+      // blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      // encryptionKey: new kms.Key(this, 's3BucketKMSKey'),
+    });
+
+    // write to SSM
+    const ssmParam = new ssm.StringParameter(this, "bucketNameSSM", {
+      parameterName: '/demo_monorepo_deployer/bucket_name',
+      stringValue: s3ConfigBucket.bucketName
+    })
+
+
     // The code that defines your stack goes here
     const lambdaFunction = new NodejsFunction(this, "frank-demo-monorepo-deployer", {
       runtime: Runtime.NODEJS_16_X,
@@ -31,6 +48,7 @@ export class MonorepoDeployerStack extends cdk.Stack {
       // },
       environment: {
         CDK_SCOPE: process.env.CDK_SCOPE!,
+        BUCKET_NAME: s3ConfigBucket.bucketName,
         // TESTING: Fetch codepipeline name from SSM written from service1 pipeline stack, will move to s3 config file
         // SERVICE1_CODEPIPELINE_NAME: service1PipelineName
       },
@@ -50,22 +68,6 @@ export class MonorepoDeployerStack extends cdk.Stack {
     const api = new LambdaRestApi(this, "frank-demo-monorepo-deployer-api", {
       handler: lambdaFunction,
     } )
-
-    const s3ConfigBucket = new s3.Bucket(this, 'demo-monorepo-deployer', {
-      bucketName: "monorepo-deployer",
-      removalPolicy: RemovalPolicy.DESTROY,
-      autoDeleteObjects: true,
-      // https://towardsthecloud.com/aws-cdk-s3-bucket
-      // objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_ENFORCED,
-      // blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      // encryptionKey: new kms.Key(this, 's3BucketKMSKey'),
-    });
-
-    // write to SSM
-    const ssmParam = new ssm.StringParameter(this, "bucketNameSSM", {
-      parameterName: '/demo_monorepo_deployer/bucket_name',
-      stringValue: s3ConfigBucket.bucketName
-    })
 
     s3ConfigBucket.grantRead(lambdaFunction)
   }

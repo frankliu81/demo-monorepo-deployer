@@ -89,8 +89,8 @@ export class PipelineStack extends Stack {
     );
 
     new s3deploy.BucketDeployment(this, 'configFile', {
-      // bucket filepath is ${respository}/${branch}/${service}
-      sources: [s3deploy.Source.data('demo-monorepo-deployer/integration/service1/config.json', 
+      // bucket name is monorepo-deployer, filepath is ${respository}/${branch}/${service}/config.json
+      sources: [s3deploy.Source.data('demo-monorepo-deployer/main/service1/config.json', 
         `{ "codepipeline": "${this.pipelineInstance.pipeline.pipelineName}", 
            "ignore_patterns": "",
            "match_patterns": "services/service1/*"
