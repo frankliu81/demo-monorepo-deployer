@@ -13,7 +13,7 @@ export const handler = async (event: any, context: any, callback: any) => {
             return {
               statusCode: 200,
               headers: {},
-              body: JSON.stringify({ service1: ['2']})
+              body: JSON.stringify({ service1: ['3']})
             };
           }
         }
