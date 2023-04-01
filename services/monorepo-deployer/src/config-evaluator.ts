@@ -21,7 +21,7 @@ export const fetchConfigs = async (githubRepoInfo: GithubRepoInfo) : Promise<str
   const response = await s3Client.send(command);
   let configs: string[];
 
-  console.log(`fetchConfigs response: ${response}`)
+  console.log(`fetchConfigs response: ${JSON.stringify(response)}`)
 
   if ("Contents" in response) {
     configs = await Promise.all(
