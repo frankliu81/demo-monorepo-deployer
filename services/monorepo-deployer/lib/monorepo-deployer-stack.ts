@@ -23,7 +23,7 @@ export class MonorepoDeployerStack extends cdk.Stack {
     // The code that defines your stack goes here
     const lambdaFunction = new NodejsFunction(this, "frank-demo-monorepo-deployer", {
       runtime: Runtime.NODEJS_16_X,
-      entry: path.join(__dirname, "../src/index.ts"),
+      entry: path.join(__dirname, "../src/monorepo-deployer.lambda.ts"),
       handler: 'handler', // this string should match the exports in lambda
       // bundling: {
       //   externalModules: ['aws-sdk'] // this was for AWS SDK v2 which is included in Node 16, 
@@ -52,7 +52,7 @@ export class MonorepoDeployerStack extends cdk.Stack {
     } )
 
     const s3ConfigBucket = new s3.Bucket(this, 'demo-monorepo-deployer', {
-      bucketName: "demo-monorepo-deployer",
+      bucketName: "monorepo-deployer",
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       // https://towardsthecloud.com/aws-cdk-s3-bucket
