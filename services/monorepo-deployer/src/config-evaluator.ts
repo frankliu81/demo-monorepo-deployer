@@ -25,11 +25,14 @@ export const fetchConfigs = async (githubRepoInfo: GithubRepoInfo) : Promise<str
 
   if ("Contents" in response) {
     configs = await Promise.all(
-      response["Contents"]?.map( async(content) => { return await fetchConfig(String(content["Key"])) }) || []
+      response["Contents"]?.map( async(content) => { 
+       const str = await fetchConfig(String(content["Key"]))
+       console.log(`inside map: ${str}`) 
+       return str;
+      }) || []
     )
 
     console.log(`fetchConfigs configs: ${configs}`)
-
   }
 
   return new Promise((resolve) => {
@@ -38,6 +41,8 @@ export const fetchConfigs = async (githubRepoInfo: GithubRepoInfo) : Promise<str
 }
 
 export const fetchConfig = async (key: string) : Promise<string> => {
+  console.log(`fetchConfig key: ${key}`)
+
   return getObject({
     Bucket: BUCKET_NAME,
     Key: key
@@ -52,8 +57,8 @@ export const getObject = async (bucket: BucketReference): Promise<string> => {
     try {
         const response = await s3Client.send(command);
         // The Body object also has 'transformToByteArray' and 'transformToWebStream' methods.
-        const str = await response.Body!.transformToString();
-        console.log(str);
+        str = await response.Body!.transformToString();
+        console.log(`getObject ${str}`);
     } catch (err) {
         console.error(err);
     }
