@@ -1,6 +1,6 @@
 
 import { CodePipelineClient, StartPipelineExecutionCommand } from "@aws-sdk/client-codepipeline";
-import { extractRepoBranchFromGithubEvent, fetchConfigs,  } from "./config-evaluator";
+import { extractRepoBranchFromGithubEvent, fetchConfigs, codepipelinesToTrigger } from "./config-evaluator";
 // const BUCKET_NAME = process.env.BUCKET_NAME || ''
 
 export const handler = async (event: any, context: any, callback: any) => {
@@ -15,8 +15,7 @@ export const handler = async (event: any, context: any, callback: any) => {
 
   let parsedEvent = JSON.parse(event.body);
   const githubRepoInfo = extractRepoBranchFromGithubEvent(parsedEvent);
-  const configs = (await fetchConfigs(githubRepoInfo)).map( (config) => { console.log(`${config}\n`)})
-
+  const configs = await fetchConfigs(githubRepoInfo);
 
   if (parsedEvent) // if parsedEvent is not null, ie. is returned from the github org webhook event
   {
@@ -34,7 +33,16 @@ export const handler = async (event: any, context: any, callback: any) => {
 
     if (name == 'demo-monorepo-deployer')
     {
-
+      const codepipelinesTriggerList = codepipelinesToTrigger(parsedEvent, configs)
+      console.log('codepipelinesTriggerList: ' + codepipelinesTriggerList);
+      const client = new CodePipelineClient({ region: "ca-central-1" });
+      codepipelinesTriggerList.forEach( async (codepipeline) => {
+        const input = {
+          name: codepipeline
+        };
+        const command = new StartPipelineExecutionCommand(input);
+        const response = await client.send(command);
+      })
     }
   }
 

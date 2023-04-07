@@ -74,14 +74,14 @@ export const doFilesMatchConfig = (config: StringMap, files: string[]): boolean 
 }
 
 
-export const fetchConfigs = async (githubRepoInfo: GithubRepoInfo) : Promise<string[]> => {
+export const fetchConfigs = async (githubRepoInfo: GithubRepoInfo) : Promise<StringMap[]> => {
   const command = new ListObjectsV2Command({
     Bucket: BUCKET_NAME,
     Prefix: `${githubRepoInfo.repository}/${githubRepoInfo.branch}`
   });
 
   const response = await s3Client.send(command);
-  let configs: string[];
+  let configs: StringMap[];
 
   console.log(`fetchConfigs response: ${JSON.stringify(response)}`)
 
@@ -90,7 +90,7 @@ export const fetchConfigs = async (githubRepoInfo: GithubRepoInfo) : Promise<str
       response["Contents"]?.map( async(content) => { 
        const str = await fetchConfig(String(content["Key"]))
        console.log(`inside map: ${str}`) 
-       return str;
+       return JSON.parse(str);
       }) || []
     )
 
