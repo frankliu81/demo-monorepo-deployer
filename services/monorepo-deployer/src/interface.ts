@@ -7,3 +7,5 @@ export interface GithubRepoInfo {
   repository: string;
   branch: string;
 }
+
+export type StringMap = { [key: string]: any }

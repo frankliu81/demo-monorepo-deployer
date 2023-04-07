@@ -164,7 +164,8 @@ export const githubEventMultipleCommits = {
               "services/monorepo-deployer/src/config-evaluator.ts",
               "services/monorepo-deployer/src/monorepo-deployer.lambda.ts",
               "services/monorepo-deployer/test/github-event-no-service1.ts",
-              "services/service2/src/index.ts"
+              "services/service2/src/index.ts",
+              "services/service2/bin/service2.ts"
           ]
       },
       {

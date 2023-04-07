@@ -1,5 +1,5 @@
 import { ListObjectsV2Command, GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import type { BucketReference, GithubRepoInfo } from "./interface";
+import type { BucketReference, GithubRepoInfo, StringMap } from "./interface";
 
 const s3Client = new S3Client({ apiVersion: "2006-03-01" });
 const BUCKET_NAME = process.env.BUCKET_NAME || ''
@@ -10,6 +10,14 @@ export const extractRepoBranchFromGithubEvent = (parsedEvent: any): GithubRepoIn
   console.log(`repository: ${repository}, branch: ${branch}`)
 
   return { repository: repository, branch: branch }
+}
+
+export const getFilesFromCommits = (commits: StringMap[] ): string[] => {
+  return commits.reduce<string[]>( (acc, commit) => { return acc.concat(getFilesFromCommit(commit)) }, [] as string[] );
+}
+
+export const getFilesFromCommit = (commit: StringMap): string[] => {
+  return [].concat(commit["added"], commit["removed"], commit["modified"]);
 }
 
 export const fetchConfigs = async (githubRepoInfo: GithubRepoInfo) : Promise<string[]> => {
