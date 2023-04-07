@@ -1,6 +1,6 @@
 
 import { CodePipelineClient, StartPipelineExecutionCommand } from "@aws-sdk/client-codepipeline";
-import { extractRepoBranchFromGithubEvent, fetchConfigs, getObject } from "./config-evaluator";
+import { extractRepoBranchFromGithubEvent, fetchConfigs,  } from "./config-evaluator";
 // const BUCKET_NAME = process.env.BUCKET_NAME || ''
 
 export const handler = async (event: any, context: any, callback: any) => {
@@ -15,7 +15,8 @@ export const handler = async (event: any, context: any, callback: any) => {
 
   let parsedEvent = JSON.parse(event.body);
   const githubRepoInfo = extractRepoBranchFromGithubEvent(parsedEvent);
-  (await fetchConfigs(githubRepoInfo)).map( (config) => { console.log(`${config}\n`)})
+  const configs = (await fetchConfigs(githubRepoInfo)).map( (config) => { console.log(`${config}\n`)})
+
 
   if (parsedEvent) // if parsedEvent is not null, ie. is returned from the github org webhook event
   {
@@ -33,6 +34,7 @@ export const handler = async (event: any, context: any, callback: any) => {
 
     if (name == 'demo-monorepo-deployer')
     {
+
     }
   }
 

@@ -156,7 +156,7 @@ export const githubEventNoService1Change = {
             "added": [],
             "removed": [],
             "modified": [
-                "services/service1/src/index.ts"
+                "services/service2/src/index.ts"
             ]
         }
     ],
@@ -180,7 +180,7 @@ export const githubEventNoService1Change = {
         "added": [],
         "removed": [],
         "modified": [
-            "services/service1/src/index.ts"
+            "services/service2/src/index.ts"
         ]
     }
 }
