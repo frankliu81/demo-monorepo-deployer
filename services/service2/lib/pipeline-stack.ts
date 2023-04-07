@@ -1,21 +1,21 @@
 import { Construct, ConstructOrder } from "constructs";
 import * as pipelines from "aws-cdk-lib/pipelines";
 import { Stack, StackProps, Stage, StageProps } from "aws-cdk-lib";
-import { Service1Stack } from "./service1-stack";
+import { Service2Stack } from "./service2-stack";
 import { LinuxBuildImage } from "aws-cdk-lib/aws-codebuild";
 import * as ssm from "aws-cdk-lib/aws-ssm";
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 
 
-const ROOT_PATH='services/service1';
+const ROOT_PATH='services/service2';
 class MyApplication extends Stage {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
     
     //what do you want the codepipeline to do for it in this stage
-    new Service1Stack(this, 'production', {
-      stackName: 'Service1StackProduction',
+    new Service2Stack(this, 'production', {
+      stackName: 'Service2StackProduction',
     })
   }
 }
@@ -70,12 +70,6 @@ export class PipelineStack extends Stack {
     this.pipelineInstance.buildPipeline()
 
     // START monorepo deployer integration
-    // TESTING: write to SSM the pipeline 
-    // const ssmParam = new ssm.StringParameter(this, "codePipelineName", {
-    //   parameterName: '/demo_monorepo_deployer/service1/codepipeline_name',
-    //   stringValue: this.pipelineInstance.pipeline.pipelineName
-    // })
-
     // read monorepo deployer bucket name
     const configBucketName = ssm.StringParameter.valueForStringParameter(
       this,
@@ -88,19 +82,19 @@ export class PipelineStack extends Stack {
       configBucketName,
     );
 
-    new s3deploy.BucketDeployment(this, 'configFile', {
+    new s3deploy.BucketDeployment(this, 'configFile2', {
       // bucket name is monorepo-deployer, filepath is ${respository}/${branch}/${service}/config.json
       sources: [s3deploy.Source.jsonData('config.json',
         { "codepipeline": `${this.pipelineInstance.pipeline.pipelineName}`,
            "ignore_patterns": "",
-           "match_patterns": "services/service1/*"
+           "match_patterns": "services/service2/*"
         }
       )],
-      destinationKeyPrefix: 'demo-monorepo-deployer/main/service1',
+      destinationKeyPrefix: 'demo-monorepo-deployer/main/service2',
       destinationBucket: importedConfigBucket,
     });
     // END monorepo deployer integration
-
+    
     // deploy to new account and new region
   }
 }
