@@ -12,7 +12,7 @@ export class SsmStack extends cdk.Stack {
 
     // write to SSM
     const ssmParam = new ssm.StringParameter(this, "codePipelineName", {
-        parameterName: '/demo_monorepo_deployer/service1/pipeline_stack/codepipeline_name'',
+        parameterName: '/demo_monorepo_deployer/service1/pipeline_stack/codepipeline_name',
         stringValue: props!.codePipeline.pipeline.pipelineName
       })
     }

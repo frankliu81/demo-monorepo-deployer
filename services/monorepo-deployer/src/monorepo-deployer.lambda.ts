@@ -37,6 +37,7 @@ export const handler = async (event: any, context: any, callback: any) => {
       console.log('codepipelinesTriggerList: ' + codepipelinesTriggerList);
       const client = new CodePipelineClient({ region: "ca-central-1" });
       codepipelinesTriggerList.forEach( async (codepipeline) => {
+        console.log('trigger codepipeline: ' + codepipeline)
         const input = {
           name: codepipeline
         };
